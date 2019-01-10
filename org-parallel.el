@@ -63,8 +63,10 @@
    "hi(हिन्दी)"           "pa(ਪੰਜਾਬੀ)"             "yue(粵語)"             "hmn(Hmoob)"
    "pap(Papiamentu)"   "zh-CN(简体中文)"       "hr(Hrvatski)"          "pl(Polski)"
    "zh-TW(正體中文)"    "ht(Kreyòl Ayisyen)"   "ps(ﻮﺘښﭘ)"              "zu(isiZulu)"
-   "hu(Magyar)"        "pt(Português)"        "hy(Հայերեն)"           "ro(Română)")
+   "hu(Magyar)"        "pt(Português)"        "hy(Հայերեն)"           "ro(Română)"
+   )
  )
+
 
 (defvar org-parallel-map
   (let ((map (make-sparse-keymap)))
@@ -79,8 +81,7 @@
     (insert-file-contents file)
     (buffer-substring-no-properties
        (point-min)
-       (point-max)))
-  )
+       (point-max))))
 
 
 (defun org-parallel--template ()
@@ -126,8 +127,7 @@
 
 (defun org-parallel--get-lang-from ()
   "Check language to translate to."
-  (org-parallel--lang-completion "Translate from: ")
-  )
+  (org-parallel--lang-completion "Translate from: "))
 
 
 (defun org-parallel--get-lang-to ()
@@ -165,8 +165,18 @@
 	(setq alist2 (cdr alist2))
 	(setq z (1+ z))
 	)
-      (reverse alist)
-    )))
+      (reverse alist) )))
+
+
+(defun org-parallel--get-target ()
+  "Get target: a word or phrase."
+  (interactive)
+  (if (use-region-p)
+      (let ((selection (buffer-substring-no-properties (region-beginning) (region-end))))
+	(if (= (length selection) 0)
+	    ""
+	  selection))
+    (thing-at-point 'word 'no-properties) ) )
 
 
 (defun org-parallel--call-trans (target postfix)
@@ -195,13 +205,14 @@
 ;;;###autoload
 (defun org-parallel-dict ()
   "Show info about word/sentence like in dictionary."
-  (org-parallel--call-trans (word-at-point) "-d"))
+  (org-parallel--call-trans (org-parallel--get-target) "-d"))
 
 
 ;;;###autoload
 (defun org-parallel-translate ()
   "Show translation of word/sentence, choose it and copy to clipboard."
-  (kill-new (org-parallel--call-trans (word-at-point) "")))
+  (kill-new (org-parallel--call-trans (org-parallel--get-target) "")))
+
 
 ;;;###autoload
 (defun org-parallel-create ()
@@ -254,6 +265,8 @@
   :lighter " OrgP"
   :keymap org-parallel-map
   :global t
+  
+  ;; Table markup
   (make-local-variable org-parallel-line-splitter)
   (make-local-variable org-parallel-file-ext)
   (make-local-variable org-parallel-col-splitter)
@@ -263,17 +276,11 @@
   (make-local-variable org-parallel--from)
   (make-local-variable org-parallel--to)
   (make-local-variable org-parallel-languages)
+
+  ;; Key bindings
   (make-local-variable org-parallel-map)
   )
 
 (provide 'org-parallel)
-
-;;(create-org-buff "~/Documents/PROJECTS/cpp/tagfile/makefile")
-;(debug-on-entry 'org-parallel-create)
-;(org-parallel-create)
-;(org-parallel--call-trans "friday" "")
-
-;;(require 'org-parallel)
-;;(org-parallel-mode t)
 
 ;;; org-parallel.el ends here
