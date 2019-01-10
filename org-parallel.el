@@ -8,7 +8,8 @@
 ;; Package-Require: ((emacs "24.3")(org)(subr-x)(thingatpt))
 
 ;;; Commentary:
-;; as
+;; Will be finished at the end or sooner.
+
 ;;; Code:
 (require 'subr-x)
 (require 'thingatpt)
